@@ -6,7 +6,7 @@ import numpy as np
 from djitellopy import Tello
 import optical_flow_yuru
 
-CAMERA_DIMENSIONS = (2592, 1936)
+CAMERA_DIMENSIONS = (960, 720)
 CAMERA_CENTER_X = CAMERA_DIMENSIONS[0]/2
 CAMERA_CENTER_Y = CAMERA_DIMENSIONS[1]/2
 CAMERA_FOCAL = 35
