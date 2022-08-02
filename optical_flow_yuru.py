@@ -7,16 +7,14 @@ from light_tracking_pid_yuru import track_light
 
 
 class TelloOpticalFlow:
-    PX_TO_MM_FACTOR = 0.0264583     # inaccurate
-
     def __init__(self):
         self.tello = Tello()
         self.tello.connect()
         self.tello.streamon()
 
         self.frame = None
-
-        self.px_movements = np.array()
+        self.PX_TO_MM_FACTOR = 0.0264583     # inaccurate
+        # self.px_movements = np.array()
 
     def get_frame(self):
         try:
@@ -51,12 +49,12 @@ class TelloOpticalFlow:
                                     found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
                 prev_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
                                     found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
-                fb_change = (curr_len - prev_len) * PX_TO_MM_FACTOR
+                fb_change = (curr_len - prev_len) * self.PX_TO_MM_FACTOR
 
                 np.insert(avg_change, 1, fb_change)
-                np.append(self.px_movements, avg_change)
+                # np.append(self.px_movements, avg_change)
 
-                track_light(self.px_movements)
+                track_light(avg_change)
 
 
 
