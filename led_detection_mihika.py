@@ -16,6 +16,8 @@ frame_read = tello.get_frame_read()
 while True:
     img = frame_read.frame
     cv2.imshow('tello camera', img)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
     
 
 tello.streamoff()
