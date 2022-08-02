@@ -2,41 +2,36 @@
 
 import time
 import math
-import numpy as np
 from djitellopy import Tello
-import optical_flow_yuru
 
-CAMERA_DIMENSIONS = (960, 720)
-CAMERA_CENTER_X = CAMERA_DIMENSIONS[0]/2
-CAMERA_CENTER_Y = CAMERA_DIMENSIONS[1]/2
-CAMERA_FOCAL = 35
-PX_TO_MM_FACTOR = 0.0264583     # inaccurate
-PX_MOVEMENTS = optical_flow_yuru.tello_optical_flow.px_movements
-KP = 1.2
-KI = 1.35
-KD = 0.0001
-L = 3
+def track_light(PX_MOVEMENTS):
+    CAMERA_DIMENSIONS = (960, 720)
+    CAMERA_CENTER_X = CAMERA_DIMENSIONS[0]/2
+    CAMERA_CENTER_Y = CAMERA_DIMENSIONS[1]/2
+    CAMERA_FOCAL = 35
+    PX_TO_MM_FACTOR = 0.0264583     # inaccurate
 
-def tello_pid(self, error, last_time, last_error, ITerm):
-        curr_time = time.time()
-        dt = curr_time - last_time
+    KP = 1.2
+    KI = 1.35
+    KD = 0.0001
+    L = 3
 
-        if dt >= 0.1:
-            PTerm = error
-            ITerm += error * dt
-            DTerm = (error - last_error) / dt
+    def tello_pid(self, error, last_time, last_error, ITerm):
+            curr_time = time.time()
+            dt = curr_time - last_time
 
-            u = (KP * PTerm) + (KI * ITerm) + (KD * DTerm)
-            u = int(min(max(u, -100), 100))
+            if dt >= 0.1:
+                PTerm = error
+                ITerm += error * dt
+                DTerm = (error - last_error) / dt
 
-            last_time = curr_time
-            last_error = error
-        
-        return u, last_time, last_error, ITerm
+                u = (KP * PTerm) + (KI * ITerm) + (KD * DTerm)
+                u = int(min(max(u, -100), 100))
 
-if __name__ == "__main__":
-    tello = Tello()
-    tello.connect()
+                last_time = curr_time
+                last_error = error
+            
+            return u, last_time, last_error, ITerm
 
     last_time_lr = time.time()
     last_time_fb = time.time()

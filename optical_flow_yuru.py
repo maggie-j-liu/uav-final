@@ -3,11 +3,12 @@
 import cv2
 import numpy as np
 from djitellopy import Tello
-
-PX_TO_MM_FACTOR = 0.0264583     # inaccurate
+from light_tracking_pid_yuru import track_light
 
 
 class TelloOpticalFlow:
+    PX_TO_MM_FACTOR = 0.0264583     # inaccurate
+
     def __init__(self):
         self.tello = Tello()
         self.tello.connect()
@@ -25,11 +26,11 @@ class TelloOpticalFlow:
         except Exception as e:
             print(e)
 
-    def sparse_optical_flow_lk(self):
+    def sparse_optical_flow_lk(self, led_mask):
         feature_params = dict(maxCorners =  15, qualityLevel = 0.01, minDistance = 2, blockSize = 7) # helps decide what corners should be tracked
         frame0 = self.get_frame()
         frame0_gray = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
-        corners0 = cv2.goodFeaturesToTrack(frame0_gray, mask=None, **feature_params) # add mask from led detection so that we have a ROI
+        corners0 = cv2.goodFeaturesToTrack(frame0_gray, led_mask, **feature_params) # add mask from led detection so that we have a ROI
 
         lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
@@ -55,11 +56,13 @@ class TelloOpticalFlow:
                 np.insert(avg_change, 1, fb_change)
                 np.append(self.px_movements, avg_change)
 
+                track_light(self.px_movements)
 
 
-if __name__ == "__main__":
-    tello_optical_flow = TelloOpticalFlow()
-    tello_optical_flow.get_frame()
-    tello_optical_flow.sparse_optical_flow_lk()
 
-    print("px_movements:", tello_optical_flow.px_movements)
+# if __name__ == "__main__":
+#     tello_optical_flow = TelloOpticalFlow()
+#     tello_optical_flow.get_frame()
+#     tello_optical_flow.sparse_optical_flow_lk()
+
+#     print("px_movements:", tello_optical_flow.px_movements)
