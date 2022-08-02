@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 from djitellopy import Tello
-from light_tracking_pid_yuru import track_light
+from light_tracking_pid import track_light
 
 
 class TelloOpticalFlow:
@@ -45,10 +45,10 @@ class TelloOpticalFlow:
                 avg_change = np.sum(changes, axis=0) / changes.shape[0] # assuming ROI
 
                 # calculate forward-backward change from ratio of (current average side length) / (previous average side length)
-                curr_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
-                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
-                prev_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
-                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
+                curr_len = np.mean([found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
+                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1]])
+                prev_len = np.mean([found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
+                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1]])
                 fb_change = (curr_len - prev_len) / self.PX_TO_MM_FACTOR
 
                 np.insert(avg_change, 1, fb_change)

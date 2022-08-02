@@ -5,16 +5,11 @@ import math
 from djitellopy import Tello
 
 def track_light(PX_MOVEMENTS):
-    # CAMERA_DIMENSIONS = (960, 720)
-    # CAMERA_CENTER_X = CAMERA_DIMENSIONS[0]/2
-    # CAMERA_CENTER_Y = CAMERA_DIMENSIONS[1]/2
-    # CAMERA_FOCAL = 35
-    PX_TO_MM_FACTOR = 0.0264583     # inaccurate
-
     KP = 1.2
     KI = 1.35
     KD = 0.0001
     L = 3
+    PX_TO_MM_FACTOR = 0.0264583     # may be inaccurate
 
     def tello_pid(self, error, last_time, last_error, ITerm):
             curr_time = time.time()
