@@ -16,6 +16,9 @@ class TelloOpticalFlow:
         self.PX_TO_MM_FACTOR = 0.0264583     # inaccurate
         # self.px_movements = np.array()
 
+        self.feature_params = dict(maxCorners =  15, qualityLevel = 0.01, minDistance = 2, blockSize = 7) # helps decide what corners should be tracked
+        self.lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
     def get_frame(self):
         try:
             self.frame = self.tello.get_frame_read().frame
@@ -25,17 +28,14 @@ class TelloOpticalFlow:
             print(e)
 
     def sparse_optical_flow_lk(self, led_mask):
-        feature_params = dict(maxCorners =  15, qualityLevel = 0.01, minDistance = 2, blockSize = 7) # helps decide what corners should be tracked
         frame0 = self.get_frame()
         frame0_gray = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
-        corners0 = cv2.goodFeaturesToTrack(frame0_gray, led_mask, **feature_params) # add mask from led detection so that we have a ROI
-
-        lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        corners0 = cv2.goodFeaturesToTrack(frame0_gray, led_mask, **self.feature_params) # add mask from led detection so that we have a ROI
 
         while True:
             self.get_frame()
             frame_gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-            corners1, state, errors = cv2.calcOpticalFlowPyrLK(frame0_gray, frame_gray, corners0, None, **lk_params)
+            corners1, state, errors = cv2.calcOpticalFlowPyrLK(frame0_gray, frame_gray, corners0, None, **self.lk_params)
 
             found_current = corners1[state == 1]
             found_prev = corners0[state == 1]
@@ -49,7 +49,7 @@ class TelloOpticalFlow:
                                     found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
                 prev_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
                                     found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
-                fb_change = (curr_len - prev_len) * self.PX_TO_MM_FACTOR
+                fb_change = (curr_len - prev_len) / self.PX_TO_MM_FACTOR
 
                 np.insert(avg_change, 1, fb_change)
                 # np.append(self.px_movements, avg_change)
