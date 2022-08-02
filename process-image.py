@@ -5,10 +5,9 @@ import numpy as np
 
 # images = ["image-1659386966.672099.png"]
 # images = ["image-1659451643.666878.png"]
-images = os.listdir("images")
 
-for img_name in images:
-    img = cv.imread(f"images/{img_name}")
+
+def process_image(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     ret, thresh = cv.threshold(img_gray, 160, 255, cv.THRESH_BINARY_INV)
     # cv.imshow("thresh", thresh)
@@ -23,7 +22,7 @@ for img_name in images:
         thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         area = cv.contourArea(contour)
-        print('area', area)
+        # print('area', area)
         if area > 100:
             M = cv.moments(contour)
             cx = int(M['m10'] / M['m00'])
@@ -46,11 +45,19 @@ for img_name in images:
 
                 match = cv.matchShapes(
                     circle_contour, contour, 1, 0.0)
-                print("match", match)
+                # print("match", match)
                 if match < 0.25:
                     cv.circle(img, center, radius, (255, 0, 0), 3)
                     cv.drawContours(img, [contour], 0, (0, 255, 0), 3)
                     cv.drawContours(img, [circle_contour], 0, (0, 0, 255), 3)
+    return img
+
+
+images = os.listdir("images")
+
+for img_name in images:
+    img = cv.imread(f"images/{img_name}")
+    img = process_image(img)
     cv.imshow(img_name, img)
 
 cv.waitKey(0)
