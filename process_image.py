@@ -3,9 +3,6 @@ import os
 import math
 import numpy as np
 
-# images = ["image-1659386966.672099.png"]
-# images = ["image-1659451643.666878.png"]
-
 
 def process_image(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -53,11 +50,12 @@ def process_image(img):
     return img
 
 
-images = os.listdir("images")
+if __name__ == "__main__":
+    images = os.listdir("images")
 
-for img_name in images:
-    img = cv.imread(f"images/{img_name}")
-    img = process_image(img)
-    cv.imshow(img_name, img)
+    for img_name in images:
+        img = cv.imread(f"images/{img_name}")
+        img = process_image(img)
+        cv.imshow(img_name, img)
 
-cv.waitKey(0)
+    cv.waitKey(0)
