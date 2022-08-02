@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from djitellopy import Tello
 
+PX_TO_MM_FACTOR = 0.0264583     # inaccurate
+
 
 class TelloOpticalFlow:
     def __init__(self):
@@ -42,7 +44,17 @@ class TelloOpticalFlow:
             if found_current.shape == found_prev.shape:
                 changes = found_current - found_prev
                 avg_change = np.sum(changes, axis=0) / changes.shape[0] # assuming ROI
+
+                # calculate forward-backward change from ratio of (current average side length) / (previous average side length)
+                curr_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
+                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
+                prev_len = np.mean(found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
+                                    found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1])
+                fb_change = (curr_len - prev_len) * PX_TO_MM_FACTOR
+
+                np.insert(avg_change, 1, fb_change)
                 np.append(self.px_movements, avg_change)
+
 
 
 if __name__ == "__main__":
