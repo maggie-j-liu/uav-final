@@ -32,28 +32,30 @@ class TelloOpticalFlow:
 
         lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
-        while time.time() - self.time0 < 150:
+        while True:
             self.get_frame()
             cv2.imshow("Frame", self.frame)
-            cv2.waitKey(1)
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                break
 
             frame_gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
             corners1, state, errors = cv2.calcOpticalFlowPyrLK(frame0_gray, frame_gray, corners0, None, **lk_params)
 
-            if corners1 is not None:
-                print('corners found')
-                found_current = corners1[state == 1]
-                found_prev = corners0[state == 1]
+            if corners1 is None:
+                corners0 = cv2.goodFeaturesToTrack(frame0_gray, mask=None, **feature_params)
+                corners1, state, errors = cv2.calcOpticalFlowPyrLK(frame0_gray, frame_gray, corners0, None, **lk_params)
 
-                changes = found_current - found_prev
-                if changes.shape[0] != 0:
-                    avg_change = np.sum(changes, axis=0) / changes.shape[0]
-                    self.px_movements.append(avg_change)
+            found_current = corners1[state == 1]
+            found_prev = corners0[state == 1]
 
-                frame0_gray = frame_gray.copy()
-                corners0 = np.reshape(found_current, (-1, 1, 2))
-            else:
-                print('none found')
+            changes = found_current - found_prev
+            if changes.shape[0] != 0:
+                avg_change = np.sum(changes, axis=0) / changes.shape[0]
+                self.px_movements.append(avg_change)
+
+            frame0_gray = frame_gray.copy()
+            corners0 = np.reshape(found_current, (-1, 1, 2))
 
         cv2.destroyAllWindows()
 
