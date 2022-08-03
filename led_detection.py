@@ -9,6 +9,7 @@ import os
 
 
 def detect_leds(img):
+    img_mask = np.zeros(img.shape, dtype=np.uint8)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (11, 11), 0)
     thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
@@ -54,11 +55,18 @@ def detect_leds(img):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)
-                cv2.circle(img, (int(cX), int(cY)), int(radius),
-                           (0, 0, 255), 3)
+                cv2.circle(img, (int(cX), int(cY)),
+                           int(radius), (0, 0, 255), 3)
+                cv2.circle(img_mask, (int(cX), int(cY)), int(radius),
+                           (255, 255, 255), -1)
+                print("saw smth")
                 # cv2.putText(img, "#{}".format(i + 1), (x, y - 15),
                 #             cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
-    return img, radius
+
+    cv2.imshow("circles", img)
+    cv2.imshow("mask", img_mask)
+    cv2.waitKey(1)
+    return img_mask
 
 
 if __name__ == "__main__":
