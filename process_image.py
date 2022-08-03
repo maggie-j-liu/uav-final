@@ -4,17 +4,23 @@ import math
 import numpy as np
 
 
+DEBUG = False
+
+
 def process_image(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    ret, thresh = cv.threshold(img_gray, 160, 255, cv.THRESH_BINARY_INV)
-    # cv.imshow("thresh", thresh)
-    # cv.waitKey(0)
-    thresh = cv.blur(thresh, (5, 5))
-    # cv.imshow("thresh", thresh)
-    # cv.waitKey(0)
+    ret, thresh = cv.threshold(img_gray, 200, 255, cv.THRESH_BINARY_INV)
+    if DEBUG:
+        cv.imshow("thresh", thresh)
+        cv.waitKey(0)
+    thresh = cv.blur(thresh, (7, 7))
+    if DEBUG:
+        cv.imshow("thresh", thresh)
+        cv.waitKey(0)
     thresh = cv.bitwise_not(thresh)
-    # cv.imshow("thresh", thresh)
-    # cv.waitKey(0)
+    if DEBUG:
+        cv.imshow("thresh", thresh)
+        cv.waitKey(0)
     contours, hierarchy = cv.findContours(
         thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     for contour in contours:
@@ -28,7 +34,7 @@ def process_image(img):
             center = (int(x), int(y))
             radius = int(radius)
             extent = float(area) / (math.pi * (radius ** 2))
-            if extent > 0.4:
+            if extent > 0.39:
                 cr = int(math.sqrt(area / math.pi))
                 circle_img = np.zeros(
                     (img.shape[0], img.shape[1], 3), np.uint8)
@@ -43,7 +49,7 @@ def process_image(img):
                 match = cv.matchShapes(
                     circle_contour, contour, 1, 0.0)
                 # print("match", match)
-                if match < 0.25:
+                if match < 0.31:
                     cv.circle(img, center, radius, (255, 0, 0), 3)
                     cv.drawContours(img, [contour], 0, (0, 255, 0), 3)
                     cv.drawContours(img, [circle_contour], 0, (0, 0, 255), 3)
@@ -56,6 +62,6 @@ if __name__ == "__main__":
     for img_name in images:
         img = cv.imread(f"images/{img_name}")
         img = process_image(img)
-        cv.imshow(img_name, img)
+        cv.imwrite(f"output_1/{img_name}", img)
 
-    cv.waitKey(0)
+    # cv.waitKey(0)
