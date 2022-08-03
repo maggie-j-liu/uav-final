@@ -42,7 +42,7 @@ def track_light(PX_MOVEMENTS):
     u_ud = 0
 
     for i in range(L):
-        while math.isclose(tello.get_speed_x(), 0) and math.isclose(tello.get_speed_y(), 0) and math.isclose(tello.get_speed_z(), 0):
+        while not math.isclose(tello.get_speed_x(), 0) and not math.isclose(tello.get_speed_y(), 0) and not math.isclose(tello.get_speed_z(), 0):
             time.sleep(0.2)
 
         u_lr, last_time_lr, last_error_lr, ITerm_lr = tello_pid(PX_MOVEMENTS[0]*PX_TO_MM_FACTOR - u_lr, last_time_lr, last_error_lr, ITerm_lr)
