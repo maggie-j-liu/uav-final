@@ -12,7 +12,6 @@ class TelloOpticalFlow:
         self.frame = None
         self.px_movements = []
 
-        self.PX_TO_MM_FACTOR = 0.0264583    # may be inaccurate
         self.feature_params = dict(maxCorners =  15, qualityLevel = 0.01, minDistance = 2, blockSize = 7)
         self.lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
@@ -51,12 +50,8 @@ class TelloOpticalFlow:
             if changes.shape[0] != 0:
                 avg_change = np.sum(changes, axis=0) / changes.shape[0]
                 
-                curr_len = np.mean([found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
-                                found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1]])
-                prev_len = np.mean([found_current[1][0]-found_current[0][0], found_current[2][0]-found_current[3][0], 
-                                found_current[3][1]-found_current[0][1], found_current[2][1]-found_current[1][1]])
-                fb_change = (curr_len - prev_len) / self.PX_TO_MM_FACTOR
-                np.insert(avg_change, 1, fb_change)
+                fb_change = curr_len - prev_len
+                avg_change = np.insert(avg_change, 1, fb_change)
                 
                 self.px_movements.append(avg_change)
 

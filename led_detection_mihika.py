@@ -58,7 +58,7 @@ def detect_leds(img):
                            (0, 0, 255), 3)
                 # cv2.putText(img, "#{}".format(i + 1), (x, y - 15),
                 #             cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
-    return img
+    return img, radius
 
 
 if __name__ == "__main__":

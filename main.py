@@ -15,17 +15,21 @@ frame_read = tello.get_frame_read()
 battery = tello.get_battery()
 print(f"battery: {battery}")
 
+prev_radius = None
+
 while True:
     # LED detection
     img = frame_read.frame
-    img = process_image(img)
+    img, radius = process_image(img)
     cv.imshow("camera", img)
     led_mask = None # ADD LED DETECTION RESULT
 
     # Optical flow
     tello_optical_flow = TelloOpticalFlow()
-    tello_optical_flow.get_frame()
-    px_movements = tello_optical_flow.sparse_optical_flow_lk(led_mask)
+    if prev_radius is None:
+        prev_radius = radius
+    px_movements = tello_optical_flow.sparse_optical_flow_lk(led_mask, radius, prev_radius)
+    prev_radius = radius
 
     #PID control 
     for m in len(px_movements):
