@@ -25,7 +25,7 @@ while True:
     key = cv.waitKey(1) & 0xFF
     if key == ord("q"):
         break
-    time.sleep(1 / 3)
+    time.sleep(1 / 5)
 
 tello.streamoff()
-# tello.land()
+tello.land()
