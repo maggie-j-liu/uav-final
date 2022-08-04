@@ -5,7 +5,7 @@ from djitellopy import Tello
 from led_detection import detect_leds
 
 
-def track_light(PX_MOVEMENTS, tello):
+def track_light(PX_MOVEMENTS, RADII, tello):
     KP = 1.2
     KI = 1.35
     KD = 0.0001
@@ -53,12 +53,12 @@ def track_light(PX_MOVEMENTS, tello):
         u_lr, last_time_lr, last_error_lr, ITerm_lr = tello_pid(
             error_lr, last_time_lr, last_error_lr, ITerm_lr)
         
-        error_fb = (LED_DIAMETER/PX_MOVEMENTS[1][1] * CAMERA_FOCAL) - (
-            LED_DIAMETER/PX_MOVEMENTS[1][0] * CAMERA_FOCAL) - u_fb
+        error_fb = (LED_DIAMETER/RADII[1] * CAMERA_FOCAL) - (
+            LED_DIAMETER/RADII[0] * CAMERA_FOCAL) - u_fb
         u_fb, last_time_fb, last_error_fb, ITerm_fb = tello_pid(
             error_fb, last_time_fb, last_error_fb, ITerm_fb)
 
-        error_ud = PX_MOVEMENTS[2]/PX_TO_MM_FACTOR - u_ud
+        error_ud = PX_MOVEMENTS[1]/PX_TO_MM_FACTOR - u_ud
         u_ud, last_time_ud, last_error_ud, ITerm_ud = tello_pid(
             error_ud, last_time_ud, last_error_ud, ITerm_ud)
         
