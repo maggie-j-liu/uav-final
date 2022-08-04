@@ -4,7 +4,7 @@ from djitellopy import Tello
 import cv2 as cv
 import time
 from process_image import process_image
-from optical_flow_merged import TelloOpticalFlow
+from optical_flow import TelloOpticalFlow
 from light_tracking_pid import track_light
 
 tello_optical_flow = TelloOpticalFlow()

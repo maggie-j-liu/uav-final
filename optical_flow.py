@@ -31,8 +31,9 @@ class TelloOpticalFlow:
     def sparse_optical_flow_lk(self):
         frame0 = self.get_frame()
 
-        led_mask = detect_leds(np.copy(self.frame))
-        # convert img_mask, which is a numpy array, to an array where the value is 0 if the pixel is black and 1 if the pixel is white
+        led_mask, radius0 = detect_leds(np.copy(self.frame))
+        # convert img_mask, which is a numpy array, to an array where 
+        # the value is 0 if the pixel is black and 1 if the pixel is white
         led_mask = led_mask[:, :, 0]
         led_mask = led_mask // 255
         frame0_gray = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
@@ -46,8 +47,9 @@ class TelloOpticalFlow:
             if key == ord('q'):
                 break
 
-            led_mask = detect_leds(np.copy(self.frame))
-            # convert img_mask, which is a numpy array, to an array where the value is 0 if the pixel is black and 1 if the pixel is white
+            led_mask, radius1 = detect_leds(np.copy(self.frame))
+            # convert img_mask, which is a numpy array, to an array where 
+            # the value is 0 if the pixel is black and 1 if the pixel is white
             led_mask = led_mask[:, :, 0]
             led_mask = led_mask / 255
 
@@ -67,14 +69,12 @@ class TelloOpticalFlow:
             changes = found_current - found_prev
             if changes.shape[0] != 0:
                 avg_change = np.sum(changes, axis=0) / changes.shape[0]
-                
-                fb_change = None    #TODO
-                avg_change = np.insert(avg_change, 1, fb_change)
-                
+                avg_change = np.insert(avg_change, 1, [radius0, radius1])
                 self.px_movements.append(avg_change)
 
             frame0_gray = frame_gray.copy()
             corners0 = np.reshape(found_current, (-1, 1, 2))
+            radius0 = radius1
 
         return self.px_movements
 

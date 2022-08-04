@@ -51,10 +51,12 @@ def detect_leds(img):
             print('Something else went wrong')
         else:
             # loop over the contours
+            radii = []
             for (i, c) in enumerate(cnts):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)
+                radii.append(radius)
                 cv2.circle(img, (int(cX), int(cY)),
                            int(radius), (0, 0, 255), 3)
                 cv2.circle(img_mask, (int(cX), int(cY)), int(radius),
@@ -66,7 +68,7 @@ def detect_leds(img):
     cv2.imshow("circles", img)
     cv2.imshow("mask", img_mask)
     cv2.waitKey(1)
-    return img_mask
+    return img_mask, radii[0]
 
 
 if __name__ == "__main__":

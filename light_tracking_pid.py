@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import time
-import math
 from djitellopy import Tello
+from led_detection import detect_leds
 
 
 def track_light(PX_MOVEMENTS, tello):
@@ -31,16 +31,12 @@ def track_light(PX_MOVEMENTS, tello):
         return u, last_time, last_error, ITerm
 
     last_time_lr = time.time()
-    last_time_fb = time.time()
     last_time_ud = time.time()
     last_error_lr = 0
-    last_error_fb = 0
     last_error_ud = 0
     ITerm_lr = 0
-    ITerm_fb = 0
     ITerm_ud = 0
     u_lr = 0
-    u_fb = 0
     u_ud = 0
 
     for i in range(L):
@@ -48,10 +44,25 @@ def track_light(PX_MOVEMENTS, tello):
         #     time.sleep(0.2)
 
         u_lr, last_time_lr, last_error_lr, ITerm_lr = tello_pid(
-            PX_MOVEMENTS[0]*PX_TO_MM_FACTOR - u_lr, last_time_lr, last_error_lr, ITerm_lr)
-        # u_fb, last_time_fb, last_error_fb, ITerm_fb = tello_pid(
-        #     PX_MOVEMENTS[1]*PX_TO_MM_FACTOR - u_fb, last_time_fb, last_error_fb, ITerm_fb)
-        # u_ud, last_time_ud, last_error_ud, ITerm_ud = tello_pid(
-        #     PX_MOVEMENTS[2]*PX_TO_MM_FACTOR - u_ud, last_time_ud, last_error_ud, ITerm_ud)
-        print("rc_control", u_lr, 0, 0, 0)
+            PX_MOVEMENTS[0]/PX_TO_MM_FACTOR - u_lr, last_time_lr, last_error_lr, ITerm_lr)
+        
+        u_fb = PX_MOVEMENTS[1][1]/PX_MOVEMENTS[1][0]
+        if u_fb > 1:
+            u_fb = -u_fb
+        else:
+            u_fb = 1/u_fb
+        u_fb /= PX_TO_MM_FACTOR
+        PX_MOVEMENTS[1][0] = PX_MOVEMENTS[1][1]
+        _, PX_MOVEMENTS[1][1] = detect_leds(tello.frame_read.frame)
+
+        u_ud, last_time_ud, last_error_ud, ITerm_ud = tello_pid(
+            PX_MOVEMENTS[2]/PX_TO_MM_FACTOR - u_ud, last_time_ud, last_error_ud, ITerm_ud)
+        
+        print("rc_control", u_lr, u_fb, u_ud, 0)
         # tello.send_rc_control(u_lr, u_fb, u_ud, 0)
+
+
+if __name__ == "__main__":
+    tello = Tello()
+    PX_MOVEMENTS = None
+    track_light(PX_MOVEMENTS, tello)
