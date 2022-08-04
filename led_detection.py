@@ -23,6 +23,7 @@ def detect_leds(img):
     mask = np.zeros(thresh.shape, dtype="uint8")
 
     radii = []
+    leds = []
     # loop over the unique components
     for label in np.unique(labels):
         # if this is the background label, ignore it
@@ -57,6 +58,7 @@ def detect_leds(img):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)
+                leds.append(((cX, cY), radius))
                 radii.append(radius)
                 cv2.circle(img, (int(cX), int(cY)),
                            int(radius), (0, 0, 255), 3)
@@ -66,9 +68,10 @@ def detect_leds(img):
                 #             cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
     cv2.imshow("circles", img)
-    cv2.imshow("mask", img_mask)
+    # cv2.imshow("mask", img_mask)
     cv2.waitKey(1)
-    return img_mask, None if len(radii) == 0 else radii[0]
+    # return img_mask, None if len(radii) == 0 else radii[0]
+    return leds
 
 
 if __name__ == "__main__":

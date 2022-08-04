@@ -52,7 +52,7 @@ class TelloOpticalFlow:
 
         # while True:
         self.get_frame()
-        cv2.imshow("Frame", self.frame)
+        # cv2.imshow("Frame", self.frame)
 
         #key = cv2.waitKey(1)
         # if key == ord('q'):
