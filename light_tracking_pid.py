@@ -6,15 +6,15 @@ from led_detection import detect_leds
 
 
 def track_light(PX_MOVEMENTS, RADII, tello):
-    KP = 1.2
-    KI = 1.35
-    KD = 0.0001
+    # KP = 1.2
+    # KI = 1.35
+    # KD = 0.0001
     L = 3
     PX_TO_CM_FACTOR = 0.264583     # may be inaccurate, needs tuning/recalculation
     LED_DIAMETER = 3.0  # in centimeters
     CAMERA_FOCAL = 35
 
-    def tello_pid(error, last_time, last_error, ITerm):
+    def tello_pid(error, last_time, last_error, ITerm, KP, KI, KD):
         curr_time = time.time()
         dt = curr_time - last_time
 
@@ -52,20 +52,21 @@ def track_light(PX_MOVEMENTS, RADII, tello):
 
         error_lr = PX_MOVEMENTS[0]/PX_TO_CM_FACTOR - u_lr
         u_lr, last_time_lr, last_error_lr, ITerm_lr = tello_pid(
-            error_lr, last_time_lr, last_error_lr, ITerm_lr)
+            error_lr, last_time_lr, last_error_lr, ITerm_lr, 0.3, 0, 0)
         print("error lr", error_lr)
 
         error_fb = (LED_DIAMETER/RADII[1] * CAMERA_FOCAL) - (
             LED_DIAMETER/RADII[0] * CAMERA_FOCAL) - u_fb
         u_fb, last_time_fb, last_error_fb, ITerm_fb = tello_pid(
-            error_fb, last_time_fb, last_error_fb, ITerm_fb)
+            error_fb, last_time_fb, last_error_fb, ITerm_fb, 0.5, 0, 0)
 
         error_ud = PX_MOVEMENTS[1]/PX_TO_CM_FACTOR - u_ud
         u_ud, last_time_ud, last_error_ud, ITerm_ud = tello_pid(
-            error_ud, last_time_ud, last_error_ud, ITerm_ud)
+            error_ud, last_time_ud, last_error_ud, ITerm_ud, -0.1, 0, 0)
 
         print("rc_control", u_lr, u_fb, u_ud, 0)
         tello.send_rc_control(u_lr, u_fb, u_ud, 0)
+        time.sleep(0.001)
 
 
 if __name__ == "__main__":

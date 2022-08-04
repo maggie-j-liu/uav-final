@@ -10,7 +10,8 @@ class TelloOpticalFlow:
         self.tello = Tello()
         self.tello.connect()
         self.tello.streamon()
-        # self.tello.takeoff()
+        self.tello.send_rc_control(0, 0, 0, 0)
+        self.tello.takeoff()
         self.frame_read = self.tello.get_frame_read()
 
         self.frame = None
