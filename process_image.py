@@ -2,12 +2,15 @@ import cv2 as cv
 import os
 import math
 import numpy as np
+from djitellopy import Tello
+import time
 
 
 DEBUG = False
 
 
 def process_image(img):
+    img_mask = np.zeros(img.shape, dtype=np.uint8)
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     ret, thresh = cv.threshold(img_gray, 200, 255, cv.THRESH_BINARY_INV)
     if DEBUG:
@@ -53,15 +56,34 @@ def process_image(img):
                     cv.circle(img, center, radius, (255, 0, 0), 3)
                     cv.drawContours(img, [contour], 0, (0, 255, 0), 3)
                     cv.drawContours(img, [circle_contour], 0, (0, 0, 255), 3)
-    return img
+                    cv.circle(img_mask, center, radius, (255, 255, 255), -1)
+
+    return img, img_mask
 
 
 if __name__ == "__main__":
-    images = os.listdir("images")
+    tello = Tello()
+    tello.connect()
+    tello.streamon()
+    tello.takeoff()
+    frame_read = tello.get_frame_read()
+    while True:
+        frame = frame_read.frame
+        circles, img_mask = process_image(frame)
+        cv.imshow("circles", circles)
+        cv.imshow("mask", img_mask)
+        key = cv.waitKey(1) & 0xFF
+        if key == ord("q"):
+            break
+        time.sleep(1 / 5)
+    tello.streamoff()
+    tello.land()
+    tello.end()
+    # images = os.listdir("images")
 
-    for img_name in images:
-        img = cv.imread(f"images/{img_name}")
-        img = process_image(img)
-        cv.imwrite(f"output_1/{img_name}", img)
+    # for img_name in images:
+    #     img = cv.imread(f"images/{img_name}")
+    #     img = process_image(img)
+    # cv.imwrite(f"output_1/{img_name}", img)
 
     # cv.waitKey(0)

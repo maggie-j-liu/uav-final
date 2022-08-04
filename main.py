@@ -14,10 +14,12 @@ print(f"battery: {battery}")
 
 while True:
     # Optical flow
-    px_movements, radii = tello_optical_flow.sparse_optical_flow_lk()
+    output = tello_optical_flow.sparse_optical_flow_lk()
 
     # PID control
-    track_light(px_movements, radii, tello)
+    if output:
+        px_movements, radii = output
+        track_light(px_movements, radii, tello)
 
     # WaitKey
     key = cv.waitKey(1) & 0xFF
@@ -26,4 +28,4 @@ while True:
     time.sleep(1 / 3)
 
 tello.streamoff()
-tello.land()
+# tello.land()

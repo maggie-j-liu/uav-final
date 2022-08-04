@@ -10,7 +10,7 @@ class TelloOpticalFlow:
         self.tello = Tello()
         self.tello.connect()
         self.tello.streamon()
-        self.tello.takeoff()
+        # self.tello.takeoff()
         self.frame_read = self.tello.get_frame_read()
 
         self.frame = None
@@ -34,24 +34,33 @@ class TelloOpticalFlow:
         frame0 = self.get_frame()
 
         led_mask, radius0 = detect_leds(np.copy(self.frame))
-        # convert img_mask, which is a numpy array, to an array where 
+        if radius0 is None:
+            return
+        # convert img_mask, which is a numpy array, to an array where
         # the value is 0 if the pixel is black and 1 if the pixel is white
         led_mask = led_mask[:, :, 0]
         led_mask = led_mask // 255
         frame0_gray = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
-        corners0 = cv2.goodFeaturesToTrack(
-            frame0_gray, mask=led_mask, **self.feature_params)
+        try:
+            corners0 = cv2.goodFeaturesToTrack(
+                frame0_gray, mask=led_mask, **self.feature_params)
+        except:
+            return
 
-        #while True:
+        start_time = time.time()
+
+        # while True:
         self.get_frame()
         cv2.imshow("Frame", self.frame)
 
         #key = cv2.waitKey(1)
-        #if key == ord('q'):
+        # if key == ord('q'):
         #    break
 
         led_mask, radius1 = detect_leds(np.copy(self.frame))
-        # convert img_mask, which is a numpy array, to an array where 
+        if radius1 is None:
+            return
+        # convert img_mask, which is a numpy array, to an array where
         # the value is 0 if the pixel is black and 1 if the pixel is white
         led_mask = led_mask[:, :, 0]
         led_mask = led_mask / 255
@@ -61,8 +70,11 @@ class TelloOpticalFlow:
             frame0_gray, frame_gray, corners0, None, **self.lk_params)
 
         if corners1 is None:
-            corners0 = cv2.goodFeaturesToTrack(
-                frame0_gray, mask=led_mask, **self.feature_params)
+            try:
+                corners0 = cv2.goodFeaturesToTrack(
+                    frame0_gray, mask=led_mask, **self.feature_params)
+            except:
+                return
             corners1, state, errors = cv2.calcOpticalFlowPyrLK(
                 frame0_gray, frame_gray, corners0, None, **self.lk_params)
 
@@ -73,7 +85,7 @@ class TelloOpticalFlow:
         if changes.shape[0] != 0:
             self.avg_change = np.sum(changes, axis=0) / changes.shape[0]
             # avg_change = np.insert(avg_change, 1, [radius0, radius1])
-            #self.px_movements.append(avg_change)
+            # self.px_movements.append(avg_change)
             self.radii = [radius0, radius1]
 
         frame0_gray = frame_gray.copy()
