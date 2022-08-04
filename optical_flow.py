@@ -15,8 +15,8 @@ class TelloOpticalFlow:
 
         self.frame = None
         self.avg_change = 0
-        self.px_movements = []
-        self.radii = []
+        # self.px_movements = []
+        self.radii = [0, 0]
 
         self.feature_params = dict(
             maxCorners=15, qualityLevel=0.01, minDistance=2, blockSize=7)
@@ -74,7 +74,7 @@ class TelloOpticalFlow:
             self.avg_change = np.sum(changes, axis=0) / changes.shape[0]
             # avg_change = np.insert(avg_change, 1, [radius0, radius1])
             #self.px_movements.append(avg_change)
-            self.radii.append([radius0, radius1])
+            self.radii = [radius0, radius1]
 
         frame0_gray = frame_gray.copy()
         corners0 = np.reshape(found_current, (-1, 1, 2))
