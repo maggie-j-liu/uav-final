@@ -17,8 +17,7 @@ while True:
     px_movements, radii = tello_optical_flow.sparse_optical_flow_lk()
 
     # PID control
-    for i in len(px_movements):
-        track_light(px_movements[i], radii[i], tello)
+    track_light(px_movements, radii, tello)
 
     # WaitKey
     key = cv.waitKey(1) & 0xFF
