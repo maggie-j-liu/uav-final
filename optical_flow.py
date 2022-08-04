@@ -14,6 +14,7 @@ class TelloOpticalFlow:
         self.frame_read = self.tello.get_frame_read()
 
         self.frame = None
+        self.avg_change = 0
         self.px_movements = []
         self.radii = []
 
@@ -41,44 +42,45 @@ class TelloOpticalFlow:
         corners0 = cv2.goodFeaturesToTrack(
             frame0_gray, mask=led_mask, **self.feature_params)
 
-        while True:
-            self.get_frame()
-            cv2.imshow("Frame", self.frame)
-            key = cv2.waitKey(1)
-            if key == ord('q'):
-                break
+        #while True:
+        self.get_frame()
+        cv2.imshow("Frame", self.frame)
 
-            led_mask, radius1 = detect_leds(np.copy(self.frame))
-            # convert img_mask, which is a numpy array, to an array where 
-            # the value is 0 if the pixel is black and 1 if the pixel is white
-            led_mask = led_mask[:, :, 0]
-            led_mask = led_mask / 255
+        #key = cv2.waitKey(1)
+        #if key == ord('q'):
+        #    break
 
-            frame_gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        led_mask, radius1 = detect_leds(np.copy(self.frame))
+        # convert img_mask, which is a numpy array, to an array where 
+        # the value is 0 if the pixel is black and 1 if the pixel is white
+        led_mask = led_mask[:, :, 0]
+        led_mask = led_mask / 255
+
+        frame_gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+        corners1, state, errors = cv2.calcOpticalFlowPyrLK(
+            frame0_gray, frame_gray, corners0, None, **self.lk_params)
+
+        if corners1 is None:
+            corners0 = cv2.goodFeaturesToTrack(
+                frame0_gray, mask=led_mask, **self.feature_params)
             corners1, state, errors = cv2.calcOpticalFlowPyrLK(
                 frame0_gray, frame_gray, corners0, None, **self.lk_params)
 
-            if corners1 is None:
-                corners0 = cv2.goodFeaturesToTrack(
-                    frame0_gray, mask=led_mask, **self.feature_params)
-                corners1, state, errors = cv2.calcOpticalFlowPyrLK(
-                    frame0_gray, frame_gray, corners0, None, **self.lk_params)
+        found_current = corners1[state == 1]
+        found_prev = corners0[state == 1]
 
-            found_current = corners1[state == 1]
-            found_prev = corners0[state == 1]
+        changes = found_current - found_prev
+        if changes.shape[0] != 0:
+            self.avg_change = np.sum(changes, axis=0) / changes.shape[0]
+            # avg_change = np.insert(avg_change, 1, [radius0, radius1])
+            #self.px_movements.append(avg_change)
+            self.radii.append([radius0, radius1])
 
-            changes = found_current - found_prev
-            if changes.shape[0] != 0:
-                avg_change = np.sum(changes, axis=0) / changes.shape[0]
-                # avg_change = np.insert(avg_change, 1, [radius0, radius1])
-                self.px_movements.append(avg_change)
-                self.radii.append([radius0, radius1])
+        frame0_gray = frame_gray.copy()
+        corners0 = np.reshape(found_current, (-1, 1, 2))
+        radius0 = radius1
 
-            frame0_gray = frame_gray.copy()
-            corners0 = np.reshape(found_current, (-1, 1, 2))
-            radius0 = radius1
-
-        return self.px_movements, self.radii
+        return self.avg_change, self.radii
 
 
 if __name__ == "__main__":
