@@ -10,7 +10,7 @@ def track_light(PX_MOVEMENTS, RADII, tello):
     KI = 1.35
     KD = 0.0001
     L = 3
-    PX_TO_MM_FACTOR = 0.0264583     # may be inaccurate, needs tuning/recalculation
+    PX_TO_CM_FACTOR = 0.00264583     # may be inaccurate, needs tuning/recalculation
     LED_DIAMETER = 3.0  #in centimeters
     CAMERA_FOCAL = 35
 
@@ -49,7 +49,7 @@ def track_light(PX_MOVEMENTS, RADII, tello):
         # while not math.isclose(tello.get_speed_x(), 0) and not math.isclose(tello.get_speed_y(), 0) and not math.isclose(tello.get_speed_z(), 0):
         #     time.sleep(0.2)
 
-        error_lr = PX_MOVEMENTS[0]/PX_TO_MM_FACTOR - u_lr
+        error_lr = PX_MOVEMENTS[0]/PX_TO_CM_FACTOR - u_lr
         u_lr, last_time_lr, last_error_lr, ITerm_lr = tello_pid(
             error_lr, last_time_lr, last_error_lr, ITerm_lr)
         
@@ -58,7 +58,7 @@ def track_light(PX_MOVEMENTS, RADII, tello):
         u_fb, last_time_fb, last_error_fb, ITerm_fb = tello_pid(
             error_fb, last_time_fb, last_error_fb, ITerm_fb)
 
-        error_ud = PX_MOVEMENTS[1]/PX_TO_MM_FACTOR - u_ud
+        error_ud = PX_MOVEMENTS[1]/PX_TO_CM_FACTOR - u_ud
         u_ud, last_time_ud, last_error_ud, ITerm_ud = tello_pid(
             error_ud, last_time_ud, last_error_ud, ITerm_ud)
         
