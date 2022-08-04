@@ -12,14 +12,9 @@ tello = tello_optical_flow.tello
 battery = tello.get_battery()
 print(f"battery: {battery}")
 
-prev_radius = None
-
 while True:
     # Optical flow
-    if prev_radius is None:
-        prev_radius = radius
-    px_movements = tello_optical_flow.sparse_optical_flow_lk(led_mask, radius, prev_radius)
-    prev_radius = radius
+    px_movements = tello_optical_flow.sparse_optical_flow_lk()
 
     # PID control
     for movement in px_movements:
