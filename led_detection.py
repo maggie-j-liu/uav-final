@@ -9,7 +9,9 @@ import os
 from scipy import stats
 
 def redColorFilter(cnts, img):
-    new_cnts = []
+    red_list = []
+    blue_list = []
+    green_list = []
     for var in range(len(cnts)):
         cur = cnts[var] # a single contour
         length = cur.shape[0]
@@ -33,9 +35,13 @@ def redColorFilter(cnts, img):
             
         fin_val = stats.mode(hue_counter)
         if(fin_val[0][0]>=0 and fin_val[0][0]<=10 or fin_val[0][0]>=160 and fin_val[0][0]<=180):
-            new_cnts.append(cur)
+            red_list.append(cur)
+        elif (fin_val[0][0] >= 100 and fin_val[0][0] <= 120):
+            blue_list.append(cur)
+        elif (fin_val[0][0] >= 40 and fin_val[0][0] <= 70):
+            green_list.append(cur)
 
-    return new_cnts
+    return red_list, blue_list, green_list
 
 def detect_leds(img):
     img_mask = np.zeros(img.shape, dtype=np.uint8)
@@ -82,9 +88,9 @@ def detect_leds(img):
             # do nothing
             print('Something else went wrong')
         else:
-            new_cnts = redColorFilter(cnts, img)
+            red_cnts, blue_cnts, green_cnts = redColorFilter(cnts, img)
             # loop over the contours
-            for (i, c) in enumerate(new_cnts):
+            for (i, c) in enumerate(red_cnts):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)

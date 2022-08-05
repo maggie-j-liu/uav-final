@@ -11,7 +11,7 @@ class LedTracker:
         self.lr_pid = PID(1, 0.8, 0.01)
         self.ud_pid = PID(1.5, 0.8, 0.01)
         self.fb_pid = PID(-1, -0.8, -0.01)
-        self.fb_pid.set_point = 30
+        self.fb_pid.set_point = 40
 
     def update(self, center, radius, img):
         height, width, _ = img.shape
