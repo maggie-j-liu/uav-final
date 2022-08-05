@@ -107,7 +107,7 @@ def detect_leds(img):
     # cv2.imshow("mask", img_mask)
     cv2.waitKey(1)
     # return img_mask, None if len(radii) == 0 else radii[0]
-    return leds
+    return red_cnts
 
 
 if __name__ == "__main__":
