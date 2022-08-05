@@ -6,7 +6,36 @@ from djitellopy import Tello
 import numpy as np
 import time
 import os
+from scipy import stats
 
+def redColorFilter(cnts):
+    new_cnts = []
+    for var in range(len(cnts)):
+        cur = cnts[var] # a single contour
+        length = cur.shape[0]
+        totals = np.sum(cur, axis=0)
+        center = (totals/length)[0]
+                
+        hue_counter = []
+
+        for looper in range(length):
+            tem = cur[looper][0]
+            val1 = round((center[0]+tem[0])/2)
+            val2 = round((center[1]+tem[1])/2)
+            b = img[val2, val1][0]
+            g = img[val2, val1][1]
+            r = img[val2, val1][2]
+            temp_img = np.array([[[b]],[[g]], [[r]]])
+            temp_img = temp_img.reshape(1,1,3)
+            h = cv2.cvtColor(temp_img, cv2.COLOR_BGR2HSV)
+
+            hue_counter.append(h[0][0][0])    
+            
+        fin_val = stats.mode(hue_counter)
+        if(fin_val[0][0]>=0 and fin_val[0][0]<=10 or fin_val[0][0]>=160 and fin_val[0][0]<=180):
+            new_cnts.append(cur)
+
+    return new_cnts
 
 def detect_leds(img):
     img_mask = np.zeros(img.shape, dtype=np.uint8)
@@ -53,8 +82,9 @@ def detect_leds(img):
             # do nothing
             print('Something else went wrong')
         else:
+            new_cnts = redColorFilter(cnts)
             # loop over the contours
-            for (i, c) in enumerate(cnts):
+            for (i, c) in enumerate(new_cnts):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)
