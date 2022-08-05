@@ -10,6 +10,8 @@ from scipy import stats
 
 def redColorFilter(cnts):
     new_cnts = []
+    blue_list = []
+    green_list = []
     for var in range(len(cnts)):
         cur = cnts[var] # a single contour
         length = cur.shape[0]
@@ -34,8 +36,12 @@ def redColorFilter(cnts):
         fin_val = stats.mode(hue_counter)
         if(fin_val[0][0]>=0 and fin_val[0][0]<=10 or fin_val[0][0]>=160 and fin_val[0][0]<=180):
             new_cnts.append(cur)
+        elif (fin_val[0][0] >= 100 and fin_val[0][0] <= 120):
+            blue_list.append(cur)
+        elif (fin_val[0][0] >= 40 and fin_val[0][0] <= 70):
+            green_list.append(cur)
 
-    return new_cnts
+    return new_cnts, blue_list, green_list
 
 def detect_leds(img):
     img_mask = np.zeros(img.shape, dtype=np.uint8)
