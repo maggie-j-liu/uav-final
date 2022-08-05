@@ -8,7 +8,7 @@ import time
 import os
 from scipy import stats
 
-def redColorFilter(cnts):
+def redColorFilter(cnts, img):
     new_cnts = []
     for var in range(len(cnts)):
         cur = cnts[var] # a single contour
@@ -82,7 +82,7 @@ def detect_leds(img):
             # do nothing
             print('Something else went wrong')
         else:
-            new_cnts = redColorFilter(cnts)
+            new_cnts = redColorFilter(cnts, img)
             # loop over the contours
             for (i, c) in enumerate(new_cnts):
                 # draw the bright spot on the image
