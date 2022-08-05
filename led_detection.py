@@ -34,11 +34,16 @@ def redColorFilter(cnts, img):
             hue_counter.append(h[0][0][0])    
             
         fin_val = stats.mode(hue_counter)
-        if(fin_val[0][0]>=0 and fin_val[0][0]<=10 or fin_val[0][0]>=160 and fin_val[0][0]<=180):
+        hval = 0
+        if(len(fin_val[0])>=2):
+            hval = (fin_val[0][0]+fin_val[0][1])/2
+        else:
+            hval = fin_val[0][0]
+        if(hval>=0 and hval<=10 or hval>=160 and hval<=180):
             red_list.append(cur)
-        elif (fin_val[0][0] >= 100 and fin_val[0][0] <= 120):
+        elif (hval >= 100 and hval <= 120):
             blue_list.append(cur)
-        elif (fin_val[0][0] >= 40 and fin_val[0][0] <= 70):
+        elif (hval >= 40 and hval <= 70):
             green_list.append(cur)
 
     return red_list, blue_list, green_list
