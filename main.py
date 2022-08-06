@@ -8,6 +8,7 @@ from process_image import process_image
 from optical_flow import TelloOpticalFlow
 from light_tracking_pid import track_light
 from track_led import LedTracker
+from vosk_api.python.example.test_microphone import Microphone
 
 # tello_optical_flow = TelloOpticalFlow()
 # tello = tello_optical_flow.tello
@@ -26,9 +27,12 @@ frame_read = tello.get_frame_read()
 led_tracker = LedTracker()
 stopped = True
 
+mic = Microphone()
+
 while True:
     img = frame_read.frame
-    leds = detect_leds(img)
+    led_color = mic.get_text()
+    leds = detect_leds(img, led_color)
 
     if len(leds):
         # TODO: filter here to find correct LED

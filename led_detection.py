@@ -48,7 +48,7 @@ def redColorFilter(cnts, img):
 
     return red_list, blue_list, green_list
 
-def detect_leds(img):
+def detect_leds(img, led_color):
     img_mask = np.zeros(img.shape, dtype=np.uint8)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (11, 11), 0)
@@ -94,8 +94,17 @@ def detect_leds(img):
             print('Something else went wrong')
         else:
             red_cnts, blue_cnts, green_cnts = redColorFilter(cnts, img)
+            led_list = None
+            if led_color == 'red':
+                led_list = red_cnts
+            elif led_color == 'green':
+                led_list = green_cnts
+            elif led_color == 'blue':
+                led_list = blue_cnts
+            else:
+                led_list = red_cnts
             # loop over the contours
-            for (i, c) in enumerate(red_cnts):
+            for (i, c) in enumerate(led_list):
                 # draw the bright spot on the image
                 (x, y, w, h) = cv2.boundingRect(c)
                 ((cX, cY), radius) = cv2.minEnclosingCircle(c)
